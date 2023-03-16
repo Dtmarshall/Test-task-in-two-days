@@ -57,12 +57,13 @@ public class Slime : Entity
     {
         targetEnemy = enemies;
         fight = true;
+        reloadT = 0.5f;
+        StartCoroutine(Reload());
     }
 
     public void EndFight()
     {
         fight = false;
-        reloadT = 0.5f;
         shootPitch = 1;
     }
 
@@ -95,13 +96,22 @@ public class Slime : Entity
     protected override void Update()
     {
         base.Update();
+    }
 
-        if (!fight) return;
-        reloadT += Time.deltaTime * attackSpeed;
-        if (reloadT >= 1)
+    IEnumerator Reload()
+    {
+        while (true)
         {
-            reloadT = 0;
+            while (reloadT < 1)
+            {
+                reloadT += Time.deltaTime * attackSpeed;
+                yield return null;
+            }
+
+            if (!fight) yield break;
+
             StartCoroutine(Shoot());
+            reloadT = 0;
         }
     }
 
